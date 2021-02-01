@@ -116,10 +116,12 @@ int main() {
 
         // Pipeline
 	VkPipeline pipeline;
-
 	pipeline_create(base.device, &PIPELINE_SETTINGS_DEFAULT,
 	                sizeof(shaders) / sizeof(shaders[0]), shaders,
 	                pipeline_layout, rpass, 0, &pipeline);
+
+        vkDestroyShaderModule(base.device, vs, NULL);
+        vkDestroyShaderModule(base.device, fs, NULL);
 
         // Framebuffers
         VkFramebuffer* framebuffers = malloc(swapchain.image_ct * sizeof(framebuffers[0]));
@@ -281,7 +283,25 @@ int main() {
 
         vkDeviceWaitIdle(base.device);
 
+        vkDestroyPipeline(base.device, pipeline, NULL);
+        vkDestroyPipelineLayout(base.device, pipeline_layout, NULL);
+
+        vkDestroyRenderPass(base.device, rpass, NULL);
+
+        swapchain_destroy(base.device, &swapchain);
+
+        for (int i = 0; i < CONCURRENT_FRAMES; i++) {
+                sync_set_destroy(base.device, &sync_sets[i]);
+        }
+
+        for (int i = 0; i < swapchain.image_ct; i++) {
+                vkDestroyFramebuffer(base.device, framebuffers[i], NULL);
+        }
+
         base_destroy(&base);
 
         glfwTerminate();
+
+        free(framebuffers);
+        free(image_fences);
 }

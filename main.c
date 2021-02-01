@@ -2,15 +2,15 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 
-#include "external/render-c/include/ll/base.h"
-#include "external/render-c/include/ll/buffer.h"
-#include "external/render-c/include/ll/glfw_error.h"
-#include "external/render-c/include/ll/image.h"
-#include "external/render-c/include/ll/pipeline.h"
-#include "external/render-c/include/ll/set.h"
-#include "external/render-c/include/ll/shader.h"
-#include "external/render-c/include/ll/swapchain.h"
-#include "external/render-c/include/ll/sync.h"
+#include "external/render-c/src/base.h"
+#include "external/render-c/src/buffer.h"
+#include "external/render-c/src/glfw_error.h"
+#include "external/render-c/src/image.h"
+#include "external/render-c/src/pipeline.h"
+#include "external/render-c/src/set.h"
+#include "external/render-c/src/shader.h"
+#include "external/render-c/src/swapchain.h"
+#include "external/render-c/src/sync.h"
 
 #include <assert.h>
 

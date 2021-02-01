@@ -49,8 +49,7 @@ int main() {
 
 	// Swapchain
         struct Swapchain swapchain;
-        // TODO: Add DONT_CARE to swapchan.h
-        swapchain_create(base.surface, base.phys_dev, base.device, VK_FORMAT_B8G8R8A8_SRGB, VK_PRESENT_MODE_IMMEDIATE_KHR, &swapchain);
+        swapchain_create(base.surface, base.phys_dev, base.device, SWAPCHAIN_DONT_CARE, SWAPCHAIN_DONT_CARE, &swapchain);
 
         // Load shaders
         VkShaderModule vs = load_shader(base.device, "shaders/shader.vs.spv");
@@ -117,13 +116,9 @@ int main() {
 
         // Pipeline
 	VkPipeline pipeline;
-	// TODO: pipeline_create should NOT have vertex_info as a separate field!
-        VkPipelineVertexInputStateCreateInfo vertex_info = {0};
-        vertex_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertex_info.vertexBindingDescriptionCount = 0;
 
 	pipeline_create(base.device, &PIPELINE_SETTINGS_DEFAULT,
-	                sizeof(shaders) / sizeof(shaders[0]), shaders, &vertex_info,
+	                sizeof(shaders) / sizeof(shaders[0]), shaders,
 	                pipeline_layout, rpass, 0, &pipeline);
 
         // Framebuffers

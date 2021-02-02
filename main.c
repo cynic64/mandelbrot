@@ -7,6 +7,7 @@
 #include "external/render-c/src/glfw_error.h"
 #include "external/render-c/src/image.h"
 #include "external/render-c/src/pipeline.h"
+#include "external/render-c/src/rpass.h"
 #include "external/render-c/src/set.h"
 #include "external/render-c/src/shader.h"
 #include "external/render-c/src/swapchain.h"
@@ -66,52 +67,23 @@ int main() {
         shaders[1].pName = "main";
 
         // Render pass
-        VkAttachmentDescription attachment = {0};
-        attachment.format = swapchain.format;
-        attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        struct RpassAttachment attach = RPASS_DEFAULT_ATTACH_COLOR;
+        attach.desc.format = swapchain.format;
 
-        VkAttachmentReference attachment_ref = {0};
-        attachment_ref.attachment = 0;
-        attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	struct RpassSubpass subpass = {0};
+	subpass.bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.color_attach_ct = 1;
+	subpass.color_attachs = &attach;
 
-        VkSubpassDescription subpass = {0};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &attachment_ref;
-
-        VkSubpassDependency subpass_dep = {0};
-        subpass_dep.srcSubpass = VK_SUBPASS_EXTERNAL;
-        subpass_dep.dstSubpass = 0;
-        subpass_dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        subpass_dep.srcAccessMask = 0;
-        subpass_dep.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        subpass_dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        VkRenderPassCreateInfo rpass_info = {0};
-        rpass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        rpass_info.attachmentCount = 1;
-        rpass_info.pAttachments = &attachment;
-        rpass_info.subpassCount = 1;
-        rpass_info.pSubpasses = &subpass;
-        rpass_info.dependencyCount = 1;
-        rpass_info.pDependencies = &subpass_dep;
-
-        VkRenderPass rpass;
-        VkResult res = vkCreateRenderPass(base.device, &rpass_info, NULL, &rpass);
-        assert(res == VK_SUCCESS);
+	VkRenderPass rpass;
+	rpass_create(base.device, 1, &subpass, 1, &RPASS_DEFAULT_DEPENDENCY_COLOR_TO_EXTERNAL, &rpass);
 
         // Pipeline layout
         VkPipelineLayoutCreateInfo pipeline_layout_info = {0};
         pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 
         VkPipelineLayout pipeline_layout;
-        res = vkCreatePipelineLayout(base.device, &pipeline_layout_info, NULL, &pipeline_layout);
+        VkResult res = vkCreatePipelineLayout(base.device, &pipeline_layout_info, NULL, &pipeline_layout);
         assert(res == VK_SUCCESS);
 
         // Pipeline
@@ -200,12 +172,9 @@ int main() {
                 } else assert(res == VK_SUCCESS);
 
                 // Record command buffer
-
                 cbuf_begin_onetime(cbuf);
 
-                VkClearValue clear_vals[] = {{{{0.0F, 0.0F, 0.0F, 1.0F}}},
-                                             {{{1.0F, 0.0F}}},
-                                             {{{0.0F, 0.0F, 0.0F, 1.0F}}}};
+                VkClearValue clear_vals[] = {{{{0.0F, 0.0F, 0.0F, 1.0F}}}};
 
                 VkRenderPassBeginInfo cbuf_rpass_info = {0};
                 cbuf_rpass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

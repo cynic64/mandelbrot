@@ -8,13 +8,16 @@ vec2 square(vec2 n) {
         return vec2(n.x * n.x - n.y * n.y, 2 * n.x * n.y);
 }
 
-float divergence(vec2 n) {
+int divergence(vec2 n) {
         vec2 z = vec2(0.0, 0.0);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
                 z = square(z) + n;
+                if (z.x * z.x > 3.0 || z.y * z.y > 3.0) {
+                        return i;
+                }
         }
 
-        return z.x * z.x + z.y * z.y;
+	return 100;
 }
 
 void main() {
